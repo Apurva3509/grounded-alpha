@@ -1,0 +1,57 @@
+name: Grounded Alpha Audit
+description: Gate financial research on evidence quality and temporal integrity
+author: Apurva Patel
+
+inputs:
+  packet:
+    description: Path to the research packet JSON file
+    required: true
+  policy:
+    description: Optional path to a Grounded Alpha TOML policy
+    required: false
+    default: ""
+  output:
+    description: Path for the generated Markdown audit report
+    required: false
+    default: grounded-alpha-report.md
+
+outputs:
+  report-path:
+    description: Path to the generated audit report
+    value: ${{ steps.audit.outputs.report-path }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v7
+      with:
+        python-version: "3.13"
+    - id: audit
+      name: Audit research packet
+      shell: bash
+      env:
+        GROUNDED_ALPHA_PACKET: ${{ inputs.packet }}
+        GROUNDED_ALPHA_POLICY: ${{ inputs.policy }}
+        GROUNDED_ALPHA_OUTPUT: ${{ inputs.output }}
+      run: |
+        args=("${GROUNDED_ALPHA_PACKET}" --output "${GROUNDED_ALPHA_OUTPUT}")
+        if [[ -n "${GROUNDED_ALPHA_POLICY}" ]]; then
+          args+=(--policy "${GROUNDED_ALPHA_POLICY}")
+        fi
+
+        mkdir -p "$(dirname "${GROUNDED_ALPHA_OUTPUT}")"
+        set +e
+        PYTHONPATH="${GITHUB_ACTION_PATH}/src" \
+          python -m grounded_alpha "${args[@]}"
+        audit_status=$?
+        set -e
+
+        if [[ -f "${GROUNDED_ALPHA_OUTPUT}" ]]; then
+          cat "${GROUNDED_ALPHA_OUTPUT}" >> "${GITHUB_STEP_SUMMARY}"
+        fi
+        echo "report-path=${GROUNDED_ALPHA_OUTPUT}" >> "${GITHUB_OUTPUT}"
+        exit "${audit_status}"
+
+branding:
+  icon: check-circle
+  color: green

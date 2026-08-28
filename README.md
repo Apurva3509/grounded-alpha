@@ -1,5 +1,9 @@
 # Grounded Alpha
 
+[![CI](https://github.com/Apurva3509/grounded-alpha/actions/workflows/ci.yml/badge.svg)](https://github.com/Apurva3509/grounded-alpha/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 **Your financial agent wrote a thesis. Grounded Alpha asks for receipts.**
 
 Grounded Alpha is a local, deterministic evaluation harness for AI-generated
@@ -74,6 +78,36 @@ The included synthetic packet passes the default gate:
 Failing audits exit with status `1`, so agent loops and CI workflows can stop
 before unsupported research is published. Invalid packets or policies exit with
 status `2`.
+
+## GitHub Action
+
+Gate research artifacts in pull requests and append the complete audit to the
+workflow summary:
+
+```yaml
+permissions:
+  contents: read
+
+steps:
+  - uses: actions/checkout@v7
+  - uses: Apurva3509/grounded-alpha@main
+    with:
+      packet: research/company.json
+      policy: research/policy.toml
+```
+
+The step fails when the packet violates an error-level rule or scores below the
+configured threshold.
+
+## Agent skill
+
+The reusable skill in [`skills/grounded-alpha`](skills/grounded-alpha/SKILL.md)
+teaches Codex, Claude Code, and compatible agents to produce the packet format,
+respect the as-of boundary, run the audit, and repair research without gaming
+the score.
+
+Copy the directory into your agent's local skills folder or reference it from
+an existing harness.
 
 ## Research packet
 
