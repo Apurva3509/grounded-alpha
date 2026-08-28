@@ -1,0 +1,7 @@
+[policy]
+max_source_age_days = 120
+high_confidence_threshold = 0.75
+min_risks = 3
+min_independent_sources = 2
+max_numeric_conflict_ratio = 0.03
+fail_below = 80

@@ -1,0 +1,73 @@
+{
+  "subject": "Northstar Semiconductor",
+  "as_of": "2026-08-20",
+  "thesis": "Demand visibility and operating leverage support continued earnings growth, but customer concentration limits conviction.",
+  "sources": [
+    {
+      "id": "filing-2026",
+      "title": "Northstar FY2026 annual filing",
+      "url": "https://filings.example/northstar/fy2026",
+      "published_at": "2026-08-01",
+      "accessed_at": "2026-08-20",
+      "quote": "Revenue increased 18 percent while gross margin expanded to 61 percent.",
+      "type": "filing"
+    },
+    {
+      "id": "earnings-q4",
+      "title": "Northstar fourth-quarter earnings call",
+      "url": "https://investor.example/northstar/q4-2026",
+      "published_at": "2026-08-02",
+      "accessed_at": "2026-08-20",
+      "quote": "Management expects accelerator backlog to convert over the next three quarters.",
+      "type": "earnings"
+    },
+    {
+      "id": "industry-demand",
+      "title": "2026 accelerator supply-chain survey",
+      "url": "https://industry.example/research/accelerators-2026",
+      "published_at": "2026-07-15",
+      "accessed_at": "2026-08-20",
+      "quote": "Lead times remain elevated, though the rate of new orders slowed in July.",
+      "type": "research"
+    }
+  ],
+  "claims": [
+    {
+      "id": "revenue-growth",
+      "text": "FY2026 revenue grew 18 percent.",
+      "kind": "fact",
+      "confidence": 0.95,
+      "source_ids": ["filing-2026", "earnings-q4"],
+      "metric": "revenue_growth",
+      "value": 0.18,
+      "unit": "ratio",
+      "period": "FY2026",
+      "counterevidence": "The industry survey shows new-order momentum slowed in July."
+    },
+    {
+      "id": "margin-expansion",
+      "text": "Gross margin reached 61 percent in FY2026.",
+      "kind": "fact",
+      "confidence": 0.9,
+      "source_ids": ["filing-2026", "industry-demand"],
+      "metric": "gross_margin",
+      "value": 0.61,
+      "unit": "ratio",
+      "period": "FY2026",
+      "counterevidence": "Supply constraints could increase expedite and input costs."
+    },
+    {
+      "id": "backlog-conversion",
+      "text": "Current backlog is likely to support three quarters of accelerator shipments.",
+      "kind": "estimate",
+      "confidence": 0.72,
+      "source_ids": ["earnings-q4", "industry-demand"],
+      "period": "FY2027"
+    }
+  ],
+  "risks": [
+    "A small number of customers account for a material share of revenue.",
+    "Accelerator order growth may normalize before backlog converts.",
+    "Export controls could restrict addressable markets."
+  ]
+}
