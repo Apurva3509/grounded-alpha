@@ -6,9 +6,10 @@ from typing import NoReturn
 from grounded_alpha.audit import audit_packet
 from grounded_alpha.parser import PacketValidationError, load_packet
 from grounded_alpha.policy import load_policy
-from grounded_alpha.renderers import render_json, render_markdown
+from grounded_alpha.renderers import render_json, render_markdown, render_sarif
 
 FORMATTERS = {"json": render_json, "markdown": render_markdown}
+OUTPUT_FORMATS = (*FORMATTERS, "sarif")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -19,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("packet", type=Path, help="Path to a research packet JSON file")
     parser.add_argument("--policy", type=Path, help="Optional TOML policy file")
     parser.add_argument(
-        "--format", choices=FORMATTERS, default="markdown", help="Output format"
+        "--format", choices=OUTPUT_FORMATS, default="markdown", help="Output format"
     )
     parser.add_argument("--output", type=Path, help="Write output to a file")
     return parser
@@ -39,7 +40,11 @@ def main(argv: list[str] | None = None) -> int:
     except (PacketValidationError, ValueError) as error:
         fail(str(error))
 
-    output = FORMATTERS[args.format](report)
+    if args.format == "sarif":
+        source_text = args.packet.read_text(encoding="utf-8")
+        output = render_sarif(report, args.packet.as_posix(), source_text)
+    else:
+        output = FORMATTERS[args.format](report)
     if args.output:
         args.output.write_text(output, encoding="utf-8")
     else:

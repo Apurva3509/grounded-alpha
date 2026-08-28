@@ -62,6 +62,7 @@ Or run directly from a checkout:
 uv sync --group dev
 uv run grounded-alpha examples/research-packet.json
 uv run grounded-alpha examples/research-packet.json --format json
+uv run grounded-alpha examples/research-packet.json --format sarif
 uv run grounded-alpha examples/research-packet.json \
   --policy examples/strict-policy.toml \
   --output audit.md
@@ -87,17 +88,24 @@ workflow summary:
 ```yaml
 permissions:
   contents: read
+  security-events: write
 
 steps:
   - uses: actions/checkout@v7
-  - uses: Apurva3509/grounded-alpha@main
+  - id: grounded-alpha
+    uses: Apurva3509/grounded-alpha@v0
     with:
       packet: research/company.json
       policy: research/policy.toml
+  - uses: github/codeql-action/upload-sarif@v4
+    if: always()
+    with:
+      sarif_file: ${{ steps.grounded-alpha.outputs.sarif-path }}
 ```
 
-The step fails when the packet violates an error-level rule or scores below the
-configured threshold.
+The audit appears in the job summary and its SARIF findings become code-scanning
+annotations. The step fails when the packet violates an error-level rule or
+scores below the configured threshold.
 
 ## Agent skill
 
