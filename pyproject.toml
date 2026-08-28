@@ -1,6 +1,6 @@
 [project]
 name = "grounded-alpha"
-version = "0.1.0"
+version = "0.2.0"
 description = "Evidence-gated evaluation harness for financial research agents"
 readme = "README.md"
 requires-python = ">=3.11"

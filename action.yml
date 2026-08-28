@@ -14,11 +14,18 @@ inputs:
     description: Path for the generated Markdown audit report
     required: false
     default: grounded-alpha-report.md
+  sarif-output:
+    description: Path for the generated SARIF results
+    required: false
+    default: grounded-alpha-results.sarif
 
 outputs:
   report-path:
     description: Path to the generated audit report
     value: ${{ steps.audit.outputs.report-path }}
+  sarif-path:
+    description: Path to the generated SARIF results
+    value: ${{ steps.audit.outputs.sarif-path }}
 
 runs:
   using: composite
@@ -33,24 +40,41 @@ runs:
         GROUNDED_ALPHA_PACKET: ${{ inputs.packet }}
         GROUNDED_ALPHA_POLICY: ${{ inputs.policy }}
         GROUNDED_ALPHA_OUTPUT: ${{ inputs.output }}
+        GROUNDED_ALPHA_SARIF_OUTPUT: ${{ inputs.sarif-output }}
       run: |
         args=("${GROUNDED_ALPHA_PACKET}" --output "${GROUNDED_ALPHA_OUTPUT}")
         if [[ -n "${GROUNDED_ALPHA_POLICY}" ]]; then
           args+=(--policy "${GROUNDED_ALPHA_POLICY}")
         fi
+        sarif_args=(
+          "${GROUNDED_ALPHA_PACKET}"
+          --format sarif
+          --output "${GROUNDED_ALPHA_SARIF_OUTPUT}"
+        )
+        if [[ -n "${GROUNDED_ALPHA_POLICY}" ]]; then
+          sarif_args+=(--policy "${GROUNDED_ALPHA_POLICY}")
+        fi
 
         mkdir -p "$(dirname "${GROUNDED_ALPHA_OUTPUT}")"
+        mkdir -p "$(dirname "${GROUNDED_ALPHA_SARIF_OUTPUT}")"
         set +e
         PYTHONPATH="${GITHUB_ACTION_PATH}/src" \
           python -m grounded_alpha "${args[@]}"
         audit_status=$?
+        PYTHONPATH="${GITHUB_ACTION_PATH}/src" \
+          python -m grounded_alpha "${sarif_args[@]}"
+        sarif_status=$?
         set -e
 
         if [[ -f "${GROUNDED_ALPHA_OUTPUT}" ]]; then
           cat "${GROUNDED_ALPHA_OUTPUT}" >> "${GITHUB_STEP_SUMMARY}"
         fi
         echo "report-path=${GROUNDED_ALPHA_OUTPUT}" >> "${GITHUB_OUTPUT}"
-        exit "${audit_status}"
+        echo "sarif-path=${GROUNDED_ALPHA_SARIF_OUTPUT}" >> "${GITHUB_OUTPUT}"
+        if [[ "${audit_status}" -ne 0 ]]; then
+          exit "${audit_status}"
+        fi
+        exit "${sarif_status}"
 
 branding:
   icon: check-circle
